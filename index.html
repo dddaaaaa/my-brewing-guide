@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Гид по варке напитков</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            color: #fff;
+            background: #141417;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .bg-bubbles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+            background: #141417;
+        }
+        .bg-bubbles span {
+            position: absolute;
+            display: block;
+            bottom: -60px;
+            font-family: 'Segoe UI Emoji', 'Apple Color Emoji', sans-serif;
+            animation: bubble-rise linear infinite;
+            opacity: 0;
+        }
+        @keyframes bubble-rise {
+            0%   { transform: translateY(0) rotate(0deg); opacity: 0; }
+            10%  { opacity: 0.7; }
+            90%  { opacity: 0.7; }
+            100% { transform: translateY(-110vh) rotate(720deg); opacity: 0; }
+        }
+        .bg-bubbles span:nth-child(1)  { left: 5%;  font-size: 32px; animation-delay: 0s;  animation-duration: 12s; }
+        .bg-bubbles span:nth-child(2)  { left: 12%; font-size: 48px; animation-delay: 1s;  animation-duration: 14s; }
+        .bg-bubbles span:nth-child(3)  { left: 20%; font-size: 24px; animation-delay: 3s;  animation-duration: 10s; }
+        .bg-bubbles span:nth-child(4)  { left: 28%; font-size: 40px; animation-delay: 2s;  animation-duration: 13s; }
+        .bg-bubbles span:nth-child(5)  { left: 36%; font-size: 28px; animation-delay: 5s;  animation-duration: 11s; }
+        .bg-bubbles span:nth-child(6)  { left: 44%; font-size: 52px; animation-delay: 4s;  animation-duration: 15s; }
+        .bg-bubbles span:nth-child(7)  { left: 52%; font-size: 36px; animation-delay: 6s;  animation-duration: 10s; }
+        .bg-bubbles span:nth-child(8)  { left: 60%; font-size: 26px; animation-delay: 3s;  animation-duration: 12s; }
+        .bg-bubbles span:nth-child(9)  { left: 68%; font-size: 44px; animation-delay: 7s;  animation-duration: 14s; }
+        .bg-bubbles span:nth-child(10) { left: 76%; font-size: 30px; animation-delay: 1s;  animation-duration: 9s;  }
+        .bg-bubbles span:nth-child(11) { left: 84%; font-size: 38px; animation-delay: 8s;  animation-duration: 13s; }
+        .bg-bubbles span:nth-child(12) { left: 90%; font-size: 22px; animation-delay: 2s;  animation-duration: 11s; }
+        .bg-bubbles span:nth-child(13) { left: 95%; font-size: 46px; animation-delay: 6s;  animation-duration: 16s; }
+        .bg-bubbles span:nth-child(14) { left: 1%;  font-size: 34px; animation-delay: 4s;  animation-duration: 12s; }
+        .bg-bubbles span:nth-child(15) { left: 50%; font-size: 56px; animation-delay: 9s;  animation-duration: 14s; }
+        .app {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            height: 100vh;
+            width: 100%;
+            background: rgba(20, 20, 23, 0.4);
+            backdrop-filter: blur(2px);
+        }
+        .sidebar {
+            width: 280px;
+            min-width: 280px;
+            height: 100vh;
+            background: rgba(16, 16, 19, 0.85);
+            backdrop-filter: blur(12px);
+            border-right: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 20px 0 20px 0;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+        .sidebar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #F973C4;
+            border-radius: 10px;
+        }
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .sidebar-brand {
+            padding: 0 20px 20px 20px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #F973C4;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            margin-bottom: 16px;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .sidebar-brand span {
+            font-size: 1.8rem;
+        }
+        .category {
+            margin-bottom: 4px;
+        }
+        .category-header {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            color: #b0b0c0;
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: 0.2s;
+            border-left: 3px solid transparent;
+            user-select: none;
+        }
+        .category-header:hover {
+            background: rgba(249, 115, 196, 0.08);
+            color: #fff;
+        }
+        .category-header .arrow {
+            margin-left: auto;
+            transition: transform 0.3s ease;
+            font-size: 0.7rem;
+        }
+        .category.open .category-header .arrow {
+            transform: rotate(90deg);
+        }
+        .category.open .category-header {
+            color: #fff;
+            border-left-color: #F973C4;
+        }
+        .category-header.active-link {
+            color: #F973C4;
+            border-left-color: #F973C4;
+            background: rgba(249, 115, 196, 0.1);
+        }
+        .sub-items {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .category.open .sub-items {
+            max-height: 500px;
+        }
+        .sub-items a {
+            display: block;
+            padding: 8px 20px 8px 40px;
+            color: #9a9aaa;
+            text-decoration: none;
+            font-size: 0.9rem;
+            border-left: 3px solid transparent;
+            transition: 0.15s;
+            cursor: pointer;
+        }
+        .sub-items a:hover {
+            color: #fff;
+            background: rgba(249, 115, 196, 0.06);
+        }
+        .sub-items a.active {
+            color: #F973C4;
+            border-left-color: #F973C4;
+            background: rgba(249, 115, 196, 0.1);
+        }
+        .main-content {
+            flex: 1;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 60px 70px 80px 70px;
+        }
+        .main-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        .main-content::-webkit-scrollbar-thumb {
+            background: #F973C4;
+            border-radius: 10px;
+        }
+        .main-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .page {
+            display: none;
+            animation: fadeIn 0.25s ease;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        .page.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(8px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .page h2 {
+            font-size: 2.8rem;
+            font-weight: 500;
+            color: #F973C4;
+            margin-bottom: 20px;
+        }
+        .page h3 {
+            font-size: 1.7rem;
+            font-weight: 400;
+            color: #d0d0e0;
+            margin: 28px 0 14px;
+        }
+        .page h4 {
+            font-size: 1.4rem;
+            font-weight: 400;
+            color: #d0d0e0;
+            margin: 22px 0 10px;
+        }
+        .page p {
+            line-height: 2.0;
+            font-size: 1.2rem;
+            color: #c0c0cc;
+            margin-bottom: 24px;
+        }
+        .page ul {
+            list-style: none;
+            padding: 0;
+        }
+        .page ul li {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            color: #c0c0cc;
+            font-size: 1.1rem;
+        }
+        .page ul li::before {
+            content: "▹";
+            color: #F973C4;
+            font-size: 1.3rem;
+        }
+        .page .highlight {
+            background: rgba(249, 115, 196, 0.12);
+            border-left: 3px solid #F973C4;
+            padding: 18px 28px;
+            border-radius: 6px;
+            margin: 24px 0;
+        }
+        .page .warning {
+            background: rgba(255, 193, 7, 0.12);
+            border-left: 3px solid #FFC107;
+            padding: 18px 28px;
+            border-radius: 6px;
+            margin: 24px 0;
+        }
+        .page .warning p {
+            color: #e0d6b0;
+            margin-bottom: 0;
+        }
+        .page img {
+            width: 100%;
+            max-width: 900px;
+            height: auto;
+            border-radius: 16px;
+            margin: 24px 0 28px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+            display: block;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .page .img-row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin: 24px 0 28px 0;
+        }
+        .page .img-row img {
+            flex: 1;
+            min-width: 200px;
+            max-width: 48%;
+            margin: 0;
+        }
+        .page video {
+            width: 100%;
+            max-width: 900px;
+            border-radius: 16px;
+            margin: 24px auto 28px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+            display: block;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: #000;
+        }
+        .page .video-wrapper {
+            max-width: 900px;
+            margin: 24px auto 28px;
+            width: 100%;
+            position: relative;
+            aspect-ratio: 16 / 9;
+            background: #000;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .page .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .page table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0 28px 0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+        .page table th,
+        .page table td {
+            padding: 14px 20px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            font-size: 1.05rem;
+        }
+        .page table th {
+            background: rgba(249, 115, 196, 0.15);
+            color: #F973C4;
+            font-weight: 600;
+        }
+        .page table td {
+            background: rgba(255, 255, 255, 0.03);
+            color: #c0c0cc;
+        }
+        .page table tr:last-child td {
+            border-bottom: none;
+        }
+        .craft-placeholder {
+            background: #2a2a30;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            margin: 20px 0 30px 0;
+            border: 1px dashed #F973C4;
+        }
+        .craft-placeholder p {
+            color: #9a9aaa;
+            font-size: 1.1rem;
+            margin: 0;
+        }
+        .page .craft-img {
+            max-width: 400px;
+            width: 100%;
+            margin: 16px auto;
+        }
+        @media (max-width: 768px) {
+            .app {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                min-width: unset;
+                height: auto;
+                max-height: 45vh;
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+                padding: 12px 0;
+            }
+            .main-content {
+                height: auto;
+                padding: 20px;
+                overflow-y: auto;
+            }
+            .page {
+                max-width: 100%;
+            }
+            .page h2 {
+                font-size: 2.2rem;
+            }
+            .page h3 {
+                font-size: 1.4rem;
+            }
+            .page h4 {
+                font-size: 1.2rem;
+            }
+            .page p {
+                font-size: 1rem;
+            }
+            .page .img-row img {
+                max-width: 100%;
+            }
+            .page img,
+            .page video,
+            .page .video-wrapper {
+                max-width: 100%;
+            }
+            .page table {
+                font-size: 0.85rem;
+            }
+            .page table th,
+            .page table td {
+                padding: 6px 10px;
+            }
+            .page .craft-img {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-bubbles">
+        <span>☕</span> <span>🍃</span> <span>💨</span> <span>🫖</span> <span>🔥</span>
+        <span>🍸</span> <span>🧊</span> <span>~</span>   <span>°</span>   <span>•</span>
+        <span>🍺</span> <span>🧉</span> <span>🥃</span> <span>☕</span> <span>🍵</span>
+    </div>
+
+    <div class="app">
+
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <span>🍹</span> Гид по варке
+            </div>
+
+            <nav id="sidebarNav">
+                <div class="category">
+                    <div class="category-header active-link" data-target="intro">
+                        📖 Введение
+                    </div>
+                </div>
+
+                <div class="category">
+                    <div class="category-header">
+                        🍺 Об алкоголе
+                        <span class="arrow">▶</span>
+                    </div>
+                    <div class="sub-items">
+                        <a data-target="gameplay-drunk">Опьянение</a>
+                    </div>
+                </div>
+
+                <div class="category">
+                    <div class="category-header">
+                        🍳 Приготовление
+                        <span class="arrow">▶</span>
+                    </div>
+                    <div class="sub-items">
+                        <a data-target="recipes">Рецепты</a>
+                        <a data-target="cooking-mixing">Смешивание и приготовление</a>
+                        <a data-target="cooking-distilling">Дистилляция</a>
+                        <a data-target="cooking-aging">Выдержка</a>
+                        <a data-target="cooking-sealing">Запечатывание</a>
+                    </div>
+                </div>
+
+                <div class="category">
+                    <div class="category-header">
+                        🍓 Фрукты
+                        <span class="arrow">▶</span>
+                    </div>
+                    <div class="sub-items">
+                        <a data-target="fruits">Фрукты</a>
+                    </div>
+                </div>
+
+                <div class="category">
+                    <div class="category-header">
+                        🔧 Крафты
+                        <span class="arrow">▶</span>
+                    </div>
+                    <div class="sub-items">
+                        <a data-target="crafts">Крафты</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+
+            <div id="page-intro" class="page active">
+                <h2>Для чего нужны напитки?</h2>
+                <p>Напитки в игре служат для нескольких целей.</p>
+                <p>Во-первых, они дают необычные эффекты, которые могут помочь в приключениях или добавить веселья.</p>
+                <p>Во-вторых, они являются важным элементом ролевой игры, позволяя глубже погрузиться в мир и взаимодействовать с другими игроками.</p>
+                <p>Наконец, напитки — это отличный способ заработка: вы можете продавать их другим игрокам или сдавать определённому NPC за хорошую цену.</p>
+            </div>
+
+            <div id="page-gameplay-drunk" class="page">
+                <h2>Что со мной произойдет, когда я опьянею?</h2>
+
+                <p>Ты на шаг приблизишься к сверхчеловеку. Эффекты следующие:</p>
+
+                <h4>Таробарщина</h4>
+                <p>Ты станешь свободно разговаривать на новом языке, понять который смогут не многие .</p>
+
+                <img src="https://raw.githubusercontent.com/dddaaaaa/my-brewing-guide/refs/heads/main/say.png" alt="Эффект Таробарщина">
+
+                <h4>Сногсшибательная походка</h4>
+                <p>Твоя походка станет сногсшибательной. Как будто в реальной жизни.</p>
+
+                <h3>Протрезветь бы, да поскорее</h3>
+                <p>Самый простой способ ускорить процесс отрезвления — есть определённую еду и пить молоко.</p>
+
+                <h3>Алкоголь и токсины</h3>
+                <p>В таблице ниже приведены значения алкоголя и токсинов для различных продуктов. Отрицательные значения уменьшают уровень, положительные — увеличивают.</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Еда</th>
+                            <th>Алкоголь</th>
+                            <th>Токсины</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Гнилая плоть</td><td>—</td><td>+5.0</td></tr>
+                        <tr><td>Иглобрюх</td><td>—</td><td>+5.0</td></tr>
+                        <tr><td>Ядовитый картофель</td><td>—</td><td>+3.0</td></tr>
+                        <tr><td>Паучий глаз</td><td>—</td><td>+3.0</td></tr>
+                        <tr><td>Подозрительный суп</td><td>—</td><td>+0.5</td></tr>
+                        <tr><td>Зачарованное золотое яблоко</td><td>-30.0</td><td>-30.0</td></tr>
+                        <tr><td>Золотое яблоко</td><td>-20.0</td><td>-10.0</td></tr>
+                        <tr><td>Рагу из кролика</td><td>-19.0</td><td>—</td></tr>
+                        <tr><td>Свекольный суп</td><td>-18.0</td><td>—</td></tr>
+                        <tr><td>Тушёные грибы</td><td>-17.0</td><td>—</td></tr>
+                        <tr><td>Тыквенный пирог</td><td>-15.0</td><td>—</td></tr>
+                        <tr><td>Жареная говядина</td><td>-7.0</td><td>—</td></tr>
+                        <tr><td>Жареная свинина</td><td>-7.0</td><td>—</td></tr>
+                        <tr><td>Золотая морковь</td><td>-10.0</td><td>—</td></tr>
+                        <tr><td>Жареная баранина</td><td>-7.0</td><td>—</td></tr>
+                        <tr><td>Бутылочка мёда</td><td>-9.0</td><td>-9.0</td></tr>
+                        <tr><td>Жареный лосось</td><td>-9.0</td><td>—</td></tr>
+                        <tr><td>Жареная треска</td><td>-9.0</td><td>—</td></tr>
+                        <tr><td>Жареная курица</td><td>-6.0</td><td>—</td></tr>
+                        <tr><td>Жареный кролик</td><td>-6.0</td><td>—</td></tr>
+                        <tr><td>Хлеб</td><td>-8.0</td><td>-8.0</td></tr>
+                        <tr><td>Печёный картофель</td><td>-8.0</td><td>—</td></tr>
+                        <tr><td>Ведро молока</td><td>-4.0</td><td>-10.0</td></tr>
+                        <tr><td>Яблоко</td><td>-4.0</td><td>—</td></tr>
+                        <tr><td>Плод коруса</td><td>—</td><td>+4.0</td></tr>
+                        <tr><td>Морковь</td><td>-4.0</td><td>—</td></tr>
+                        <tr><td>Свёкла</td><td>-4.0</td><td>—</td></tr>
+                        <tr><td>Картофель</td><td>-4.0</td><td>—</td></tr>
+                        <tr><td>Печенье</td><td>-3.0</td><td>—</td></tr>
+                        <tr><td>Ломтик арбуза</td><td>-3.0</td><td>—</td></tr>
+                        <tr><td>Сладкие ягоды</td><td>-2.0</td><td>—</td></tr>
+                        <tr><td>Светящиеся ягоды</td><td>-2.0</td><td>—</td></tr>
+                        <tr><td>Сушёная ламинария</td><td>-1.0</td><td>—</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="page-recipes" class="page">
+                <h2>📜 Рецепты</h2>
+
+                <h3>Как получить рецепты</h3>
+                <p>Рецепты можно получить, исследуя мир. Некоторые рецепты можно выловить при рыбалке, другие найти в данжах. Также есть способ получения: некоторые мобы могут выпадать с рецептами, а при ломании некоторых блоков тоже есть шанс получить рецепт.</p>
+
+                <h3>Изучение рецепта</h3>
+                <p>После того как вы получили рецепт (в виде предмета), используйте его — так вы изучите часть найденного рецепта.</p>
+
+                <h3>Где посмотреть изученные рецепты?</h3>
+                <p>Всё очень просто: вам надо скрафтить <strong>Барную книгу</strong>.</p>
+
+                <img src="https://raw.githubusercontent.com/dddaaaaa/my-brewing-guide/refs/heads/main/book_bar.png" alt="Крафт Барной книги" class="craft-img">
+
+                <p>В этой книге будут храниться все ваши исследованные рецепты, а также можно посмотреть историю приготовления ваших напитков.</p>
+            </div>
+
+            <div id="page-cooking-mixing" class="page">
+                <h2>Смешивание и приготовление</h2>
+
+                <h3>Подготовка ёмкости</h3>
+                <p>Первый шаг зависит от того, будете вы варить ингредиенты или же смешивать их, всё зависит от рецепта.</p>
+                <p>Для варки вам понадобится иметь под котлом источник тепла (костёр, магма блок или, например, огонь). Для смешивания источник тепла не нужен.</p>
+                <p>Когда закончили с этим, просто добавьте в котёл подходящее наполнение (вода/рыхлый снег/лава), и добавляйте ингредиенты нажатием ПКМ по котлу.</p>
+                <img src="https://raw.githubusercontent.com/dddaaaaa/my-brewing-guide/refs/heads/main/cooking.png" alt="Котёл для варки и смешивания">
+
+                <h3>Добавляем ингредиенты</h3>
+                <p>Как только ингредиенты попали в котёл, начинается варка/смешивание. Также над котлом появятся частицы. Если частицы меняют цвет, то это не просто так.</p>
+                <p>Вы можете узнать, сколько времени котел уже работает, нажав ПКМ по нему с часами в руке</p>
+                <div class="video-wrapper">
+                    <iframe src="https://drive.google.com/file/d/1gPzZld-pW7BBciJOg9nH8iLef0lwg0RH/preview" allow="autoplay"></iframe>
+                </div>
+
+                <h3>Забираем результат</h3>
+                <p>Когда котел проработает нужное вам время, нажмите ПКМ по котлу с пустыми бутылками в руке, чтобы собрать его содержимое.</p>
+                <div class="video-wrapper">
+                    <iframe src="https://drive.google.com/file/d/1heplbbZUjpcO-yhF2K0PrTJo7ZGJO216/preview" allow="autoplay"></iframe>
+                </div>
+            </div>
+
+            <div id="page-cooking-distilling" class="page">
+                <h2>Дистилляция</h2>
+
+                <p>Для дистилляции используется специальная структура — перегонный куб.</p>
+
+                <h3>Базовый перегонный куб</h3>
+                <p>Для постройки вашего первого перегонного куба вам понадобятся три узорчатые вазы и три бамбуковых забора.</p>
+                <p>Поставьте их как на видео:</p>
+
+                <div class="video-wrapper">
+                    <iframe src="https://drive.google.com/file/d/1heplbbZUjpcO-yhF2K0PrTJo7ZGJO216/preview" allow="autoplay"></iframe>
+                </div>
+
+                <div class="warning">
+                    <p><strong>⚠️ SHIFT!</strong> Не забудьте присесть, когда ставите блоки об узорчатые вазы, иначе вы просто закинете их внутрь.</p>
+                    <p style="margin-top: 8px;">Если вы всё сделали правильно, в чате появится сообщение.</p>
+                </div>
+
+                <h3>Дистилляция</h3>
+                <p>Сторона с двумя вазами — вход, а с одной — выход:</p>
+
+                <img src="https://raw.githubusercontent.com/dddaaaaa/my-brewing-guide/refs/heads/main/Distil.png" alt="Входы и выходы перегонного куба">
+
+                <p>После постройки перегонки можно начинать дистилляцию. Нажмите ПКМ по любой из входных ваз, чтобы открыть их инвентарь, и положите внутрь напитки, которые собираетесь дистиллировать.</p>
+                <p>Затем нажмите ПКМ по "выходу" , чтобы открыть его. По мере дистилляции напитки будут перекладываться в его инвентарь.</p>
+                <p>Число необходимых дистилляций разнится от рецепта к рецепту.</p>
+            </div>
+
+            <div id="page-cooking-aging" class="page">
+                <h2>Выдержка</h2>
+
+                <p>Настаивание — процесс неторопливый. Некоторые рецепты требуют порядка часа ожидания (около 3 игровых дней) а другие и то больше.</p>
+                <p>Тип дерева, из которого построена бочка, имеет значение. Некоторым напиткам без разницы, в какой бочке лежать, а некоторые требует, например, именно дубовую бочку.</p>
+
+                <h3>Создание бочки</h3>
+                <p>Бочка создается путем постановки необходимых блоков в правильном положении, а затем, в последнюю очередь, табличку. Если вы всё сделали правильно, то в чате появится подтверждение. После этого табличку можно убрать, если хочется.</p>
+
+                <p><strong>Малая бочка</strong></p>
+                <img src="https://raw.githubusercontent.com/dddaaaaa/my-brewing-guide/refs/heads/main/small.png" alt="Малая бочка">
+
+                <p><strong>Большая бочка</strong></p>
+                <img src="https://raw.githubusercontent.com/dddaaaaa/my-brewing-guide/refs/heads/main/big.png" alt="Большая бочка">
+
+                <p>Если ни одна из этих бочек не работает, вам следует обратиться к администрации.</p>
+
+                <h3>Виды бочек</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Тип бочки</th>
+                            <th>Ступени</th>
+                            <th>Доски</th>
+                            <th>Заборы</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Дубовая</td><td>Дубовые</td><td>Дубовые</td><td>Дубовый</td></tr>
+                        <tr><td>Еловая</td><td>Еловые</td><td>Еловые</td><td>Еловый</td></tr>
+                        <tr><td>Березовая</td><td>Берёзовые</td><td>Берёзовые</td><td>Берёзовый</td></tr>
+                        <tr><td>Тропическая</td><td>Тропические</td><td>Тропические</td><td>Тропический</td></tr>
+                        <tr><td>Акациевая</td><td>Акациевые</td><td>Акациевые</td><td>Акациевый</td></tr>
+                        <tr><td>Тёмно-дубовая</td><td>Тёмно-дубовые</td><td>Тёмно-дубовые</td><td>Тёмно-дубовый</td></tr>
+                        <tr><td>Багровая</td><td>Багровые</td><td>Багровые</td><td>Багровый</td></tr>
+                        <tr><td>Искажённая</td><td>Искажённые</td><td>Искажённые</td><td>Искажённый</td></tr>
+                        <tr><td>Вишнёвая</td><td>Вишнёвые</td><td>Вишнёвые</td><td>Вишнёвый</td></tr>
+                        <tr><td>Бледно-дубовая</td><td>Бледно-дубовые</td><td>Бледно-дубовые</td><td>Бледно-дубовый</td></tr>
+                        <tr><td>Медная</td><td>Резные медные</td><td>Резной медный блок</td><td>Любой деревянный</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="page-cooking-sealing" class="page">
+                <h2>Запечатывание</h2>
+
+                <p>Запечатывание позволяет скрыть некоторые подробности приготовления напитка из его описания, и защитить напиток от его последующего изменения например его больше не получится хранить в бочке и оно не испортится.</p>
+
+                <p>Напитки также можно маркеровать, что представляет из себя добавление собственного текста к описанию.</p>
+
+                <h3>Запечатывание</h3>
+                <p>Процесс крайне прост:</p>
+                <ul>
+                    <li>Возьмите в основную руку напиток, который будете запечатывать.</li>
+                    <li>В левую руку возьмите бумагу.</li>
+                    <li>Нажмите SHIFT+ПКМ по верстаку с этими предметами.</li>
+                </ul>
+                <p>Бумага израсходуется, а напиток будет запечатан.</p>
+
+                <div class="video-wrapper">
+                    <iframe src="https://drive.google.com/file/d/16_0x5Plwuc-czRQa9BJMx870q_8-i_CC/preview" allow="autoplay"></iframe>
+                </div>
+
+                <h3>Маркерование</h3>
+                <p>Для этого нужно сделать всё то же самое, но бумагу перед этим нужно переименовать, написав текст, который вы хотите добавить.</p>
+
+                <div class="video-wrapper">
+                    <iframe src="https://drive.google.com/file/d/1W3IrptHVFqYP41bw8pvEOWNqplqn-L11/preview" allow="autoplay"></iframe>
+                </div>
+            </div>
+
+            <div id="page-fruits" class="page">
+                <h2>🍓 Фрукты</h2>
+
+                <p>Некоторые рецепты требуют определённые фрукты или ягоды. Без них приготовить нужный напиток не получится.</p>
+
+                <h3>Как получить семена</h3>
+                <p>Семена можно найти, собирая траву. При разрушении травы с некоторым шансом выпадают семена различных растений.</p>
+
+                <h3>Выращивание растений</h3>
+                <p>Посадите семена в землю и ждите. Каждое растение имеет несколько стадий роста, и у каждой стадии своё время созревания. Некоторые растут быстро, другим требуется больше времени.</p>
+
+                <h3>Сбор урожая</h3>
+                <p>Когда растение полностью созреет, на нём появятся плоды — фрукты или ягоды. Чтобы собрать урожай, используйте ножницы и нажмите ПКМ по плоду. После сбора растение не погибает — оно продолжает плодоносить и приносить новые плоды.</p>
+
+                <div class="highlight">
+                    💡 Совет: если у вас есть несколько кустов или деревьев, можно организовать постоянную ферму для стабильного сбора ингредиентов.
+                </div>
+
+                <h3>Все виды растений и семян</h3>
+                <img src="https://raw.githubusercontent.com/dddaaaaa/my-brewing-guide/refs/heads/main/fruit.png" alt="Все виды растений и семян">
+            </div>
+
+            <div id="page-crafts" class="page">
+                <h2>🔧 Крафты</h2>
+
+                <h3>Барная книга</h3>
+                <img src="https://raw.githubusercontent.com/dddaaaaa/my-brewing-guide/refs/heads/main/book_bar.png" alt="Крафт Барной книги" class="craft-img">
+
+                <h3>Чёрная чайная заварка</h3>
+                <img src="https://raw.githubusercontent.com/dddaaaaa/my-brewing-guide/refs/heads/main/balc_tea.png" alt="Крафт Чёрной чайной заварки" class="craft-img">
+
+                <h3>Зелёная чайная заварка</h3>
+                <img src="https://raw.githubusercontent.com/dddaaaaa/my-brewing-guide/refs/heads/main/gren_tea.png" alt="Крафт Зелёной чайной заварки" class="craft-img">
+
+                <h3>Декор: Пугало</h3>
+                <img src="https://raw.githubusercontent.com/dddaaaaa/my-brewing-guide/refs/heads/main/scarecrow.png" alt="Крафт Пугала" class="craft-img">
+
+                <h3>Декор: Кружка</h3>
+                <img src="https://raw.githubusercontent.com/dddaaaaa/my-brewing-guide/refs/heads/main/cup_1.png" alt="Крафт Кружки" class="craft-img">
+            </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const categoryHeaders = document.querySelectorAll('.category-header');
+            categoryHeaders.forEach(header => {
+                header.addEventListener('click', function(e) {
+                    if (this.dataset.target) {
+                        const targetId = this.dataset.target;
+                        const targetPage = document.getElementById('page-' + targetId);
+                        if (targetPage) {
+                            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                            targetPage.classList.add('active');
+                            document.querySelectorAll('.category-header, .sub-items a').forEach(el => {
+                                el.classList.remove('active', 'active-link');
+                            });
+                            this.classList.add('active-link');
+                            document.querySelectorAll('.sub-items a').forEach(a => a.classList.remove('active'));
+                        }
+                        return;
+                    }
+                    const category = this.parentElement;
+                    category.classList.toggle('open');
+                });
+            });
+
+            const subLinks = document.querySelectorAll('.sub-items a');
+            const pages = document.querySelectorAll('.page');
+
+            subLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    subLinks.forEach(l => l.classList.remove('active'));
+                    document.querySelectorAll('.category-header').forEach(h => h.classList.remove('active-link'));
+                    this.classList.add('active');
+                    const targetId = this.dataset.target;
+                    const targetPage = document.getElementById('page-' + targetId);
+                    pages.forEach(p => p.classList.remove('active'));
+                    if (targetPage) {
+                        targetPage.classList.add('active');
+                    } else {
+                        document.querySelector('.page')?.classList.add('active');
+                    }
+                });
+            });
+
+            const activeLink = document.querySelector('.sub-items a.active');
+            if (activeLink) {
+                const parentCategory = activeLink.closest('.category');
+                if (parentCategory) {
+                    parentCategory.classList.add('open');
+                }
+            }
+
+            const activeIntro = document.querySelector('.category-header[data-target="intro"]');
+            if (activeIntro && document.getElementById('page-intro').classList.contains('active')) {
+                activeIntro.classList.add('active-link');
+            }
+        });
+    </script>
+</body>
+</html>
